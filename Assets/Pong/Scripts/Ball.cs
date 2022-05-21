@@ -17,8 +17,6 @@ public class Ball : MonoBehaviour
 
     //UI
     [SerializeField] GameObject settings;
-    [SerializeField] GameObject start;
-    [SerializeField] GameObject rules;
     [SerializeField] GameObject endgame;
 
     Vector2 direction;
@@ -91,7 +89,6 @@ public class Ball : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("left wall"))
         {
-
             score(true);
         }
         if (collision.gameObject.CompareTag("right wall"))
@@ -139,9 +136,7 @@ public class Ball : MonoBehaviour
     public void startgame()
     {
         endgame.SetActive(false);
-        start.SetActive(false);
         settings.SetActive(false);
-        rules.SetActive(false);
 
         Time.timeScale = 1;
         rightscore = 0;

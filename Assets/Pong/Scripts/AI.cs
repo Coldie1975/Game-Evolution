@@ -13,11 +13,6 @@ public class AI : MonoBehaviour
 
     static public bool useAI = true;
 
-    void Start()
-    {
-
-    }
-
     private void FixedUpdate()
     {
         if (useAI)
@@ -34,11 +29,6 @@ public class AI : MonoBehaviour
             if (arrowY < -8) arrowY = -8;
             rightPaddle.transform.position = new Vector2(8, arrowY);
         }
-    }
-
-    void Update()
-    {
-
     }
 
     public void changeAI()

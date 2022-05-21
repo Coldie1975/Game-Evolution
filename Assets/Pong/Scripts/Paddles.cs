@@ -11,9 +11,6 @@ public class Paddles : MonoBehaviour
     [SerializeField] float speed = 0.01f;
 
     [SerializeField] GameObject settings;
-    [SerializeField] GameObject start;
-    [SerializeField] GameObject rules;
-    [SerializeField] GameObject endgame;
 
     void Update()
     {
