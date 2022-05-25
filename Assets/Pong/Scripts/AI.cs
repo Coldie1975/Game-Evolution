@@ -7,7 +7,7 @@ public class AI : MonoBehaviour
 {
     [SerializeField] GameObject Ball;
     [SerializeField] GameObject rightPaddle;
-    float speed = 15f;
+    float speed = 13f;
 
     private void FixedUpdate()
     {

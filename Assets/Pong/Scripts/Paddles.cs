@@ -48,7 +48,7 @@ public class Paddles : MonoBehaviour
 
         playerRB.velocity = new Vector2(keymovementX,keymovementY);
 
-        if (Input.GetKey(KeyCode.T)) settingsmenu();
+        if (Input.GetKey(KeyCode.Escape)) settingsmenu();
     }
 
     void settingsmenu()
@@ -62,5 +62,15 @@ public class Paddles : MonoBehaviour
     {
         settings.SetActive(false);
         Time.timeScale = 1;
+    }
+
+    private void Start()
+    {
+        settingsmenu();
+    }
+
+    public void doExitGame()
+    {
+        Application.Quit();
     }
 }

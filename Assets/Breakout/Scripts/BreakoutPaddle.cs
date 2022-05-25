@@ -27,12 +27,14 @@ public class BreakoutPaddle : MonoBehaviour
             keymovementX += speed;
         }
 
+
+
         keyA.SetActive(keymovementX < 0);
         keyD.SetActive(keymovementX > 0);
 
         playerRB.velocity = new Vector2(keymovementX, keymovementY);
 
-        if (Input.GetKey(KeyCode.T)) settingsmenu();
+        if (Input.GetKey(KeyCode.Escape)) settingsmenu();
     }
 
     void settingsmenu()
@@ -46,5 +48,14 @@ public class BreakoutPaddle : MonoBehaviour
     {
         settings.SetActive(false);
         Time.timeScale = 1;
+    }
+    private void Start()
+    {
+        settingsmenu();
+    }
+
+    public void doExitGame()
+    {
+        Application.Quit();
     }
 }

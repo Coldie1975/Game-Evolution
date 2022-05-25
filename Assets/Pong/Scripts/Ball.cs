@@ -15,9 +15,9 @@ public class Ball : MonoBehaviour
     [SerializeField] TextMeshProUGUI winnername;
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] Rigidbody2D ball;
-
+    [SerializeField] AudioSource playhit;
+    [SerializeField] AudioClip playclip;
     //UI
-    [SerializeField] GameObject settings;
     [SerializeField] GameObject endgame;
     [SerializeField] TextMeshProUGUI endtext;
 
@@ -38,7 +38,7 @@ public class Ball : MonoBehaviour
     {
         lastcollide = Time.time;
         //direction = new Vector2(-1,-1);
-        ball.AddForce(new Vector2(100f,100f));
+        ball.AddForce(new Vector2(100f, 100f));
         currentspeed = speed;
         //Time.timeScale = 0;
     }
@@ -49,7 +49,7 @@ public class Ball : MonoBehaviour
         {
             timerText.text = "" + Mathf.FloorToInt(10 - (Time.time - timer));
         }
-       var  newVelocity = ball.velocity;
+        var newVelocity = ball.velocity;
         if (newVelocity.y < 2 && newVelocity.y > -2)
         {
             if (newVelocity.y < 0)
@@ -82,7 +82,7 @@ public class Ball : MonoBehaviour
     {
 
 
-        if(Time.time - lastcollide < 0.2f && previospaddlename.Equals(collision.gameObject.name))
+        if (Time.time - lastcollide < 0.2f && previospaddlename.Equals(collision.gameObject.name))
         {
             //Debug.Log("collide timer");
             return;
@@ -93,12 +93,13 @@ public class Ball : MonoBehaviour
             currentspeed += speedincrease;
         }
 
-        if (collision.gameObject.CompareTag("Player")){
+        if (collision.gameObject.CompareTag("Player")) {
             collision.rigidbody.velocity.Set(0, 0);
         }
 
         if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("AI"))
         {
+            playhit.PlayOneShot(playclip);
             if (previospaddlename == "")
             {
                 previospaddlename = collision.gameObject.name;

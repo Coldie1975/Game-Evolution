@@ -9,19 +9,24 @@ public class BreakoutBall : MonoBehaviour
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] TextMeshProUGUI targetsText;
     [SerializeField] TextMeshProUGUI livesText;
+    [SerializeField] TextMeshProUGUI scoreText;
     [SerializeField] Rigidbody2D ball;
 
-    [SerializeField] GameObject[] targets;
+    //[SerializeField] GameObject[] targets;
     [SerializeField] GameObject endgame;
     [SerializeField] GameObject player;
     [SerializeField] TextMeshProUGUI endtext;
+    [SerializeField] AudioSource playhit;
+    [SerializeField] AudioClip playclip;
 
     bool timerActive;
     float timer;
 
     float speed = 5f;
-    int score = 0;
+    int targets = 0;
     int lives = 5;
+
+    int score = 0;
 
     void Start()
     {
@@ -66,21 +71,26 @@ public class BreakoutBall : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Score"))
         {
+            playhit.PlayOneShot(playclip);
             collision.gameObject.SetActive(false);
-            score += 1;
+            targets += 1;
             var scales = player.transform.localScale;
             if(collision.gameObject.transform.position.y < 0.5f)
             {
                 scales.x += 0.1f;
+                score += (1 * lives);
             }
             else
             {
                 scales.x -= 0.1f;
+                score +=( 2 * lives);
             }
-            if(scales.x <= 0.5f)
+            scoreText.text = "Score: " + score;
+            if (scales.x <= 0.5f)
             {
                 scales.x = 0.5f;
             }
+
             if (scales.x >= 3f)
             {
                 scales.x = 3f;
@@ -88,12 +98,12 @@ public class BreakoutBall : MonoBehaviour
             player.transform.localScale = scales;
         }
 
-        if(score >= 112)
+        if(targets >= 112)
         {
             //level complete
             levelComplete(true);
         }
-        targetsText.text = "Targets Remaining: " + (112 - score);
+        targetsText.text = "Targets Remaining: " + (112 - targets);
         if (collision.gameObject.CompareTag("Finish"))
         {
             lostLife();
@@ -137,11 +147,11 @@ public class BreakoutBall : MonoBehaviour
 
         if (win)
         {
-            endtext.text = "I can not believe you won <br> This is too much <br> I am sending you to another world";
+            endtext.text = "I can not believe you won. <br> A score of "+score+", max is 880 <br> I am sending you to another world.";
         }
         else
         {
-            endtext.text = "You have died <br> I hope you do better in the next world";
+            endtext.text = "You have died. <br> A score of: " + score + "<br> I hope you do better in the next world.";
         }
         endgame.SetActive(true);
         Invoke("restart", 10f);
