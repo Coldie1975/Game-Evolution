@@ -2,25 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Ball : MonoBehaviour
 {
-    [SerializeField] float speed = 4f;
-    [SerializeField] float speedincrease = 0.1f;
-    [SerializeField] float scoringscore = 100;
+    float speed = 5f;
+    float speedincrease = 0.5f;
+    float scoringscore = 50;
 
     [SerializeField] TextMeshProUGUI leftscoretext;
     [SerializeField] TextMeshProUGUI rightscoretext;
     [SerializeField] TextMeshProUGUI winnername;
-
-    [SerializeField] Rigidbody ball;
+    [SerializeField] TextMeshProUGUI timerText;
+    [SerializeField] Rigidbody2D ball;
 
     //UI
     [SerializeField] GameObject settings;
     [SerializeField] GameObject endgame;
+    [SerializeField] TextMeshProUGUI endtext;
 
-    Vector2 direction;
+    Vector2 direction = new Vector2(1f, 1f);
+    [SerializeField] Vector2 lastVelocity;
 
+    float lastcollide;
+    bool timerActive;
+    float timer;
     float leftscore = 0;
     float rightscore = 0;
 
@@ -30,24 +36,68 @@ public class Ball : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        direction = Vector2.one.normalized;
+        lastcollide = Time.time;
+        //direction = new Vector2(-1,-1);
+        ball.AddForce(new Vector2(100f,100f));
         currentspeed = speed;
-        Time.timeScale = 0;
+        //Time.timeScale = 0;
     }
 
     private void FixedUpdate()
     {
-        ball.velocity = direction * currentspeed;
+        if (timerActive)
+        {
+            timerText.text = "" + Mathf.FloorToInt(10 - (Time.time - timer));
+        }
+       var  newVelocity = ball.velocity;
+        if (newVelocity.y < 2 && newVelocity.y > -2)
+        {
+            if (newVelocity.y < 0)
+            {
+                newVelocity.y = -3;
+            }
+            else
+            {
+                newVelocity.y = 3;
+            }
+        }
+        if (newVelocity.x < 2 && newVelocity.x > -2)
+        {
+            if (newVelocity.x < 0)
+            {
+                newVelocity.x = -3;
+            }
+            else
+            {
+                newVelocity.x = 3;
+            }
+        }
+        ball.velocity = newVelocity;
+        ball.velocity = ball.velocity.normalized * currentspeed;
+
+        //ball.velocity = direction * currentspeed;
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnCollisionEnter2D(Collision2D collision)
     {
+
+
+        if(Time.time - lastcollide < 0.2f && previospaddlename.Equals(collision.gameObject.name))
+        {
+            //Debug.Log("collide timer");
+            return;
+        }
+        lastcollide = Time.time;
         if (collision.gameObject.CompareTag("Wall"))
         {
-            direction.y = -direction.y;
+            currentspeed += speedincrease;
         }
 
-        if (collision.gameObject.CompareTag("Paddle"))
+        if (collision.gameObject.CompareTag("Player")){
+            collision.rigidbody.velocity.Set(0, 0);
+        }
+
+        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("AI"))
         {
             if (previospaddlename == "")
             {
@@ -64,26 +114,24 @@ public class Ball : MonoBehaviour
                     scorefactor = 1;
                 }
             }
+            if (scorefactor >= 5) scorefactor = 5;
             previospaddlename = collision.gameObject.name;
-            //direction = Vector3.Reflect(rb.velocity,collision.contacts[0].normal);
-            direction.x = -direction.x;
-
 
             currentspeed += speedincrease;
             if (collision.gameObject.transform.position.x > 0)
             //right side
             {
-                float scoreincrease = Mathf.Floor(16 - collision.gameObject.transform.position.x);
+                float scoreincrease = Mathf.Floor(9 - collision.gameObject.transform.position.x);
                 scoreincrease *= scorefactor;
                 rightscore += scoreincrease;
-                rightscoretext.text = "" + rightscore;
+                rightscoretext.text = "Computer: " + rightscore;
             }
             else
             {
-                float scoreincrease = Mathf.Floor(16 + collision.gameObject.transform.position.x);
+                float scoreincrease = Mathf.Floor(9 + collision.gameObject.transform.position.x);
                 scoreincrease *= scorefactor;
                 leftscore += scoreincrease;
-                leftscoretext.text = "" + leftscore;
+                leftscoretext.text = "Player:" + leftscore;
             }
 
         }
@@ -102,46 +150,52 @@ public class Ball : MonoBehaviour
     {
         previospaddlename = "";
         this.transform.position = new Vector2(0, 0);
+        ball.AddForce(new Vector2(100f, 100f));
         currentspeed = speed;
         if (!left)
         {
             leftscore += scoringscore;
-            leftscoretext.text = "" + leftscore;
-            if (rightscore >= 500 || leftscore >= 500) win();
+            leftscoretext.text = "Player: " + leftscore;
+            if (rightscore >= 500 || leftscore >= 500) win(true);
         }
         else
         {
             rightscore += scoringscore;
-            rightscoretext.text = "" + rightscore;
-            if (rightscore >= 500 || leftscore >= 500) win();
+            rightscoretext.text = "Computer: " + rightscore;
+            if (rightscore >= 500 || leftscore >= 500) win(false);
         }
     }
 
-    void win()
+    void win(bool playerwon)
     {
-        Time.timeScale = 0;
-        endgame.SetActive(true);
-        if (leftscore > rightscore)
+        if (timerActive)
         {
-            //left wins
-            winnername.text = "Player 1";
+            return;
+        }
+        //Time.timeScale = 0;
+        endgame.SetActive(true);
+        if (!playerwon)
+        {
+            if (leftscore <= 300)
+            {
+                endtext.text = "You have died <br>  wow that was the worst score I have ever seen <br> I hope you do better in the next world";
+            }
+            else
+            {
+                endtext.text = "You have died <br>  not too bad a score I guess <br> I will send you to another world";
+            }
         }
         else
         {
-            //right wins
-            winnername.text = "Player 2";
+            endtext.text = "I can not believe you won <br> my champion was meant to be the best <br> I am sending you to another world";
         }
+
+        Invoke("restart", 10f);
+        timerActive = true;
+        timer = Time.time;
     }
-
-    public void startgame()
+    void restart()
     {
-        endgame.SetActive(false);
-        settings.SetActive(false);
-
-        Time.timeScale = 1;
-        rightscore = 0;
-        leftscore = 0;
-        rightscoretext.text = "0";
-        leftscoretext.text = "0";
+        SceneManager.LoadScene("Breakout", LoadSceneMode.Single);
     }
 }
