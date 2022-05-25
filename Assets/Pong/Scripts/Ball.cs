@@ -190,7 +190,7 @@ public class Ball : MonoBehaviour
         {
             endtext.text = "I can not believe you won <br> my champion was meant to be the best <br> I am sending you to another world";
         }
-
+        ball.velocity = new Vector2(0, 0);
         Invoke("restart", 10f);
         timerActive = true;
         timer = Time.time;

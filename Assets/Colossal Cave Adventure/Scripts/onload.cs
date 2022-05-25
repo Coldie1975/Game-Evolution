@@ -8,7 +8,7 @@ public class onload : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        SceneManager.LoadScene("Pong", LoadSceneMode.Single);
+        SceneManager.LoadScene("Breakout", LoadSceneMode.Single);
     }
 
     // Update is called once per frame

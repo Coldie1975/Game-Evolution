@@ -12,12 +12,15 @@ public class BreakoutBall : MonoBehaviour
     [SerializeField] TextMeshProUGUI scoreText;
     [SerializeField] Rigidbody2D ball;
 
-    //[SerializeField] GameObject[] targets;
+    [SerializeField] GameObject[] targetObjects;
     [SerializeField] GameObject endgame;
     [SerializeField] GameObject player;
     [SerializeField] TextMeshProUGUI endtext;
     [SerializeField] AudioSource playhit;
     [SerializeField] AudioClip playclip;
+    [SerializeField] GameObject targetParent;
+    [SerializeField] Material red;
+    [SerializeField] Material blue;
 
     bool timerActive;
     float timer;
@@ -27,10 +30,21 @@ public class BreakoutBall : MonoBehaviour
     int lives = 5;
 
     int score = 0;
-
+    float targetdifficulty = 1.2f;
     void Start()
     {
         ball.AddForce(new Vector2(100f, 100f));
+        foreach(GameObject obj in targetObjects)
+        {
+            if(obj.transform.position.y < targetdifficulty)
+            {
+                obj.GetComponent<SpriteRenderer>().material = blue;
+            }
+            else
+            {
+                obj.GetComponent<SpriteRenderer>().material = red;
+            }
+        }
     }
 
     private void FixedUpdate()
@@ -75,7 +89,7 @@ public class BreakoutBall : MonoBehaviour
             collision.gameObject.SetActive(false);
             targets += 1;
             var scales = player.transform.localScale;
-            if(collision.gameObject.transform.position.y < 0.5f)
+            if(collision.gameObject.transform.position.y < targetdifficulty)
             {
                 scales.x += 0.1f;
                 score += (1 * lives);
@@ -98,11 +112,7 @@ public class BreakoutBall : MonoBehaviour
             player.transform.localScale = scales;
         }
 
-        if(targets >= 112)
-        {
-            //level complete
-            levelComplete(true);
-        }
+
         targetsText.text = "Targets Remaining: " + (112 - targets);
         if (collision.gameObject.CompareTag("Finish"))
         {
@@ -135,7 +145,12 @@ public class BreakoutBall : MonoBehaviour
 
         }
 
+        if(targets >= 112)
+        {
+            //level complete
+            levelComplete(true);
         }
+    }
 
 
     void levelComplete(bool win)
@@ -147,17 +162,38 @@ public class BreakoutBall : MonoBehaviour
 
         if (win)
         {
-            endtext.text = "I can not believe you won. <br> A score of "+score+", max is 880 <br> I am sending you to another world.";
+
+            targetdifficulty -= 0.4f;
+            endtext.text = "I can not believe you won. <br> Your score was "+score+" <br> I am sending you to another world.";
+            foreach (GameObject obj in targetObjects)
+            {
+                obj.SetActive(true);
+                if (obj.transform.position.y < targetdifficulty)
+                {
+                    obj.GetComponent<SpriteRenderer>().material = blue;
+                }
+                else
+                {
+                    obj.GetComponent<SpriteRenderer>().material = red;
+                }
+            }
+            targets = 0;
+            lives += 1;
+            ball.velocity = new Vector2(0, 0);
+            ball.transform.position = new Vector3(0,-3.46f,0);
+            ball.AddForce(new Vector2(100f, 100f));
         }
         else
         {
-            endtext.text = "You have died. <br> A score of: " + score + "<br> I hope you do better in the next world.";
+            endtext.text = "You have died. <br> Your score was " + score + "<br> I hope you do better in the next world.";
+            endgame.SetActive(true);
+            Invoke("restart", 10f);
+            timerActive = true;
+            timer = Time.time;
+            ball.velocity = new Vector2(0, 0);
+            ball.transform.position = new Vector3(0, -3.46f, 0);
         }
-        endgame.SetActive(true);
-        Invoke("restart", 10f);
-        timerActive = true;
-        timer = Time.time;
-        ball.velocity.Set(0, 0);
+
     }
 
     void lostLife()
